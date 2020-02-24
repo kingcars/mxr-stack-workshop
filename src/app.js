@@ -16,7 +16,14 @@ export default function () {
       <Observer>
         {function () {
           return (
-            <div>{appStore.currentState}</div>
+            <div>
+              <div>{appStore.currentState}</div>
+              {appStore.todos.map(function (todo) {
+                return (
+                  <div key={todo.id} id={todo.id}>{todo.name}</div>
+                );
+              })}
+            </div>
           );
         }}
       </Observer>

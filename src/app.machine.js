@@ -30,14 +30,12 @@ const appMachine = Machine({
   actions: {
     logLoadTodos() {
       store.setCurrentState('loadTodos');
-      console.log('loading todos!');
     },
     logLoaded() {
       store.setCurrentState('loaded');
-      console.log('loaded todos!');
     },
-    setTodos() {
-      console.log('set todos!');
+    setTodos(_, event) {
+      store.setTodos(event.data);
     }
   }
 });
