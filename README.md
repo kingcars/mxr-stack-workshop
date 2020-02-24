@@ -1,5 +1,11 @@
 # mxr-stack-workshop
 
+## Installation
+
+After cloning the reponsitory, open a command window in the project's base folder. Run `npm install` then `npm start`.
+
+Note: Recommended to have Node `10.13.0` or higher.
+
 ## Introduction
 Welcome to the MXR stack workshop! We have spent the last several months developing and refining a tech stack which we believe will help us avoid the inevitable nature of many code bases, in which they become cumbersome and unmaintainable over time. We've done so by implementing various libraries, patterns and practices which encourage strict separation of concern and developer sympathy. This workshop will step you through the basic principles and impactful features of this tech stack.
 
