@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './app';
+import Home from './home';
 
 ReactDOM.render(
-  <App />,
+  <Home />,
   document.getElementById('mxr-stack-container')
 );

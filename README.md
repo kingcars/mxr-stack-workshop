@@ -1,13 +1,32 @@
 # mxr-stack-workshop
 
+## Introduction
+Welcome to the MXR stack workshop! We have spent the last several months developing and refining a tech stack which we believe will help us avoid the inevitable nature of many code bases, in which they become cumbersome and unmaintainable over time. We've done so by implementing various libraries, patterns and practices which encourage strict separation of concern and developer sympathy. This workshop will step you through the basic principles and impactful features of this tech stack.
+
 ## Installation
 
 After cloning the reponsitory, open a command window in the project's base folder. Run `npm install` then `npm start`.
 
 Note: Recommended to have Node `10.13.0` or higher.
 
-## Introduction
-Welcome to the MXR stack workshop! We have spent the last several months developing and refining a tech stack which we believe will help us avoid the inevitable nature of many code bases, in which they become cumbersome and unmaintainable over time. We've done so by implementing various libraries, patterns and practices which encourage strict separation of concern and developer sympathy. This workshop will step you through the basic principles and impactful features of this tech stack.
+## Instructions
+
+Here we have a basic version of a `Todos` application. The basic pieces for a functional application are already provided, but we need to tie everything together by creating machine states, adding state transitions and updating/creating mobx-state-tree models. By the end, we should be able to:
+
+- Load Todos from a mock API call
+- Add Todos
+- Edit Todos
+- Delete Todos through a confirmation modal
+
+#### Step 1 - Creating Mobx-State-Tree Models
+
+#### Step 2 - Loading Todos
+
+#### Step 3 - Adding Todos
+
+#### Step 4 - Editing Todos
+
+#### Step 5 - Deleting Todos
 
 ## The Basics
 The MXR tech stack utilizes three key components: [Mobx State Tree](https://mobx-state-tree.js.org/intro/philosophy), [xState](https://xstate.js.org/docs/about/concepts.html) and [React](https://reactjs.org/docs/getting-started.html). Mobx State Tree is the state management library; it enables us to utilize type-safe, defined data models throughout our application. xState is a library used for defining and executing finite state machines, which act as fully declarative action drivers throughout the application. Finally, React is used for the view layer, but all views are stateless and include no application/business logic.
