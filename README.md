@@ -30,6 +30,8 @@ Here we have a basic version of a `Todos` application. The basic pieces for a fu
 
 #### Step 6 - Deleting Todos
 
+#### Step 7 - Polish & Nice-to-Haves
+
 ## The Basics
 The MXR tech stack utilizes three key components: [Mobx State Tree](https://mobx-state-tree.js.org/intro/philosophy), [xState](https://xstate.js.org/docs/about/concepts.html) and [React](https://reactjs.org/docs/getting-started.html). Mobx State Tree is the state management library; it enables us to utilize type-safe, defined data models throughout our application. xState is a library used for defining and executing finite state machines, which act as fully declarative action drivers throughout the application. Finally, React is used for the view layer, but all views are stateless and include no application/business logic.
 

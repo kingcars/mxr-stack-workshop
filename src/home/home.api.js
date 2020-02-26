@@ -11,6 +11,6 @@ export default function () {
         id: 'pmakvvvb1s2aapkf',
         name: 'Go to work'
       }]);
-    },1500);
+    }, 1500);
   });
 }

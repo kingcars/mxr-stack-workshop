@@ -3,7 +3,7 @@
     justify-content: space-between;
 }
 
-.addButton {
+.add-button {
     background-color: #058a05;
     color: white;
     border: none;
@@ -15,10 +15,11 @@
     height: 45px;
 }
 
-.addButton:hover {
+.add-button:hover {
     cursor: pointer;
     background-color: #1db11d;
 }
+
 .todos ul {
     list-style: none;
     padding: 0;
@@ -26,16 +27,19 @@
     width: 50%;
     text-align: center;
 }
+
 .todos li {
     text-align: center;
     list-style: none;
 }
+
 .loader,
 .loader:after {
     border-radius: 50%;
     width: 4em;
     height: 4em;
 }
+
 .loader {
     margin: 0 auto;
     font-size: 10px;
@@ -51,6 +55,7 @@
     -webkit-animation: load8 1.1s infinite linear;
     animation: load8 1.1s infinite linear;
 }
+
 @-webkit-keyframes load8 {
     0% {
         -webkit-transform: rotate(0deg);
@@ -61,6 +66,7 @@
         transform: rotate(360deg);
     }
 }
+
 @keyframes load8 {
     0% {
         -webkit-transform: rotate(0deg);

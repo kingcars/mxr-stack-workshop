@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Observer } from 'mobx-react';
 import TodoComponent from '../todos/todo.component';
 import DeleteTodoModal from '../todos/todo.modal';
+import Loader from './home.loader';
 import machine from './home.machine';
 import store from './home.store';
 
@@ -19,7 +20,7 @@ export default function () {
         <h2 className="header-title">Welcome to the MXR Stack Workshop</h2>
         <button
           type="button"
-          className="addButton"
+          className="add-button"
           onClick={function () {
             machine.send('ADD_TODO');
           }}
@@ -29,13 +30,14 @@ export default function () {
       </div>
       <Observer>
         {function () {
-          if (store.currentState === 'waiting' || store.currentState === 'loadTodos')  {
+          if (store.currentState === 'loadTodos')  {
             return (
-              <div className={'loader'} />
-            )
+              <Loader />
+            );
           }
+
           return (
-            <ul className={'todos'}>
+            <ul className="todos">
               {store.todos.map(function (todo) {
                 return (
                   <li>
