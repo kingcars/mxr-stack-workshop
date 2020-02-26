@@ -34,23 +34,12 @@ const homeMachine = Machine({
       }
     },
     showDeleteModal: {
+      onEntry: 'setDeleteTodo',
       invoke: {
         id: 'todoDeleteModal',
         src: todoModalMachine,
         autoForward: true,
-        data(_, event) {
-          return {
-            todoId: event.id
-          };
-        },
-        onDone: [{
-          target: 'loaded',
-          actions: 'deleteTodo',
-          cond: 'deleteConfirmed'
-        }, {
-          target: 'loaded',
-          cond: 'deleteCanceled'
-        }]
+        onDone: 'loaded'
       }
     }
   }
@@ -65,19 +54,8 @@ const homeMachine = Machine({
     editTodo(_, event) {
       store.updateTodo(event.id, event.name);
     },
-    deleteTodo(_, event) {
-      const { id } = event.data;
-      store.deleteTodo(id);
-    }
-  },
-  guards: {
-    deleteConfirmed(_, event) {
-      const { deleteTodo } = event.data;
-      return deleteTodo === true;
-    },
-    deleteCanceled(_, event) {
-      const { deleteTodo } = event.data;
-      return deleteTodo === false;
+    setDeleteTodo(_, event) {
+      store.setDeleteTodoId(event.id);
     }
   }
 });

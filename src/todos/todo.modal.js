@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 
 import './todo.modal.css';
 
-function DeleteTodoModal({ visible, machine }) {
+function DeleteTodoModal({ visible, machine, todoName }) {
   return (
     <div className={`modal ${visible ? 'visible' : ''}`}>
       <div className="modal-content">
-        Are you sure you'd like to delete this todo?
+        {`Are you sure you'd like to delete ${todoName}?`}
         <div>
           <button
             type="button"
@@ -33,6 +33,7 @@ function DeleteTodoModal({ visible, machine }) {
 
 DeleteTodoModal.propTypes = {
   visible: PropTypes.bool,
+  todoName: PropTypes.string,
   machine: PropTypes.shape({
     send: PropTypes.func
   })
@@ -40,6 +41,7 @@ DeleteTodoModal.propTypes = {
 
 DeleteTodoModal.defaultProps = {
   visible: false,
+  todoName: '',
   machine: {
     send() {}
   }

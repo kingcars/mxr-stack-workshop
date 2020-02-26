@@ -1,11 +1,9 @@
 import { Machine } from 'xstate';
+import store from '../home/home.store';
 
 const modalMachine = Machine({
   id: 'ModalMachine',
   initial: 'confirmation',
-  context: {
-    todoId: ''
-  },
   states: {
     confirmation: {
       on: {
@@ -15,20 +13,17 @@ const modalMachine = Machine({
     },
     confirmDelete: {
       type: 'final',
-      data(context) {
-        return {
-          deleteTodo: true,
-          id: context.todoId
-        };
-      }
+      onEntry: 'deleteTodo'
     },
     cancelDelete: {
-      type: 'final',
-      data() {
-        return {
-          deleteTodo: false
-        };
-      }
+      type: 'final'
+    }
+  }
+}, {
+  actions: {
+    deleteTodo() {
+      store.deleteTodo();
+      store.resetDeleteTodoId();
     }
   }
 });

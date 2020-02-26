@@ -4,7 +4,7 @@ import xid from 'xid';
 const Todo = types
   .model('Todo', {
     id: types.optional(types.identifier, xid.generateId),
-    name: types.optional(types.string, '')
+    name: types.optional(types.string, 'New Todo')
   })
   .actions(function (self) {
     return {

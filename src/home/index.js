@@ -59,7 +59,11 @@ export default function () {
       <Observer>
         {function () {
           return (
-            <DeleteTodoModal visible={store.currentState === 'showDeleteModal'} machine={machine} />
+            <DeleteTodoModal
+              todoName={store.deleteTarget.name}
+              visible={store.currentState === 'showDeleteModal'}
+              machine={machine}
+            />
           );
         }}
       </Observer>
