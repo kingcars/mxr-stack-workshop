@@ -1,18 +1,23 @@
 import React, { useEffect } from 'react';
-import { Observer } from 'mobx-react';
 import TodoComponent from '../todos/todo.component';
-import DeleteTodoModal from '../todos/todo.modal';
-import Loader from './home.loader';
-import machine from './home.machine';
-import store from './home.store';
 
 import './home.css';
 
+const todos = [{
+  id: '16n5jkgfc0d4k760',
+  name: 'Take a shower'
+}, {
+  id: '9a2889n7f55s410v',
+  name: 'Walk the dog'
+}, {
+  id: 'pmakvvvb1s2aapkf',
+  name: 'Go to work'
+}];
+
 export default function () {
   useEffect(function () {
-    machine.send('LOAD');
+    // Do something when the component mounts
   }, []);
-
 
   return (
     <div className="container">
@@ -22,53 +27,29 @@ export default function () {
           type="button"
           className="add-button"
           onClick={function () {
-            machine.send('ADD_TODO');
+            // Add a Todo
           }}
         >
           Add Todo
         </button>
       </div>
-      <Observer>
-        {function () {
-          if (store.currentState === 'loadTodos')  {
-            return (
-              <Loader />
-            );
-          }
-
+      <ul className="todos">
+        {todos.map(function (todo) {
           return (
-            <ul className="todos">
-              {store.todos.map(function (todo) {
-                return (
-                  <li>
-                    <TodoComponent
-                      key={todo.id}
-                      todo={todo}
-                      onChange={function (e) {
-                        machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
-                      }}
-                      onDeleteClick={function () {
-                        machine.send('DELETE_TODO', { id: todo.id });
-                      }}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
+            <li key={todo.id}>
+              <TodoComponent
+                todo={todo}
+                onChange={function (e) {
+                  // Edit a Todo
+                }}
+                onDeleteClick={function () {
+                  // Delete a Todo
+                }}
+              />
+            </li>
           );
-        }}
-      </Observer>
-      <Observer>
-        {function () {
-          return (
-            <DeleteTodoModal
-              todoName={store.deleteTarget.name}
-              visible={store.currentState === 'showDeleteModal'}
-              machine={machine}
-            />
-          );
-        }}
-      </Observer>
+        })}
+      </ul>
     </div>
   );
 }

@@ -104,7 +104,7 @@ const homeMachine = Machine({
 });
 ```
 
-The `loadTodos` state is for running an API call, which will require using a concept called `invoke`. In `xState`, it is possible for a machine to `invoke` various things - API calls (Promises), callbacks, observables and even other xState machines. In this case, we'll be invoking a `Promise`, taken directly from the `api` import we added previously. When invoking a `Promise`, we can define state transitions based on whether the `Promise` succeeded (resolved) or failed (rejected). This can be done by using the `onDone` and `onError` properties of the `invoke` configuration. Since this is a mock API call, we'll only be defining an `onDone` transition today.
+The `loadTodos` state is for running an API call, which will require using a concept called [invoke](https://xstate.js.org/docs/guides/communication.html#the-invoke-property). In `xState`, it is possible for a machine to `invoke` various things - API calls (Promises), callbacks, observables and even other xState machines. In this case, we'll be invoking a `Promise`, taken directly from the `api` import we added previously. When invoking a `Promise`, we can define state transitions based on whether the `Promise` succeeded (resolved) or failed (rejected). This can be done by using the `onDone` and `onError` properties of the `invoke` configuration. Since this is a mock API call, we'll only be defining an `onDone` transition today.
 
 ```javascript
 const homeMachine = Machine({
@@ -128,6 +128,149 @@ const homeMachine = Machine({
     loaded: {}
   }
 });
+```
+
+With all of the transitions now defined, we can move onto `actions`. `Actions` are simply functions that can be performed at defined points in a state machine. They can happen on an event, on the entry of a state or even on the exit of a state. The first `action` we hit in this machine will be taking the todos that are loaded from the mock API call and placing them in the store. Let's call this action `setTodos` and add it to the `onDone` event of the `invoke` in `loadTodos`:
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {
+      on: {
+        LOAD: 'loadTodos'
+      }
+    },
+    loadTodos: {
+      invoke: {
+        id: 'appApi',
+        src: api,
+        onDone: {
+          target: 'loaded',
+          actions: 'setTodos'
+        }
+      }
+    },
+    loaded: {}
+  }
+});
+```
+
+Next, we'll want to add `add` and `edit` actions to the `loaded` state, which will enable the user to perform those actions (don't worry, `delete` comes later). Let's run those actions on the `ADD_TODO` and `EDIT_TODO` events respectively:
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {
+      on: {
+        LOAD: 'loadTodos'
+      }
+    },
+    loadTodos: {
+      invoke: {
+        id: 'appApi',
+        src: api,
+        onDone: {
+          target: 'loaded',
+          actions: 'setTodos'
+        }
+      }
+    },
+    loaded: {
+      on: {
+        ADD_TODO: {
+          actions: 'addTodo'
+        },
+        EDIT_TODO: {
+          actions: 'editTodo'
+        }
+      }
+    }
+  }
+});
+```
+
+You may be wondering where these actions actually get pulled from. The answer is easy: We define them within the `xState` configuration! `Machine` takes two arguments: the first being the machine configuration and the second being a mapping of `actions`, `services` and `guards`. In this workshop, we'll only be covering `actions`. For now, since we don't have the store created yet, we'll simply have these actions run some `console.log`s so we can see everything working.
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {
+      on: {
+        LOAD: 'loadTodos'
+      }
+    },
+    loadTodos: {
+      invoke: {
+        id: 'appApi',
+        src: api,
+        onDone: {
+          target: 'loaded',
+          actions: 'setTodos'
+        }
+      }
+    },
+    loaded: {
+      on: {
+        ADD_TODO: {
+          actions: 'addTodo'
+        },
+        EDIT_TODO: {
+          actions: 'editTodo'
+        }
+      }
+    }
+  }
+}, {
+  actions: {
+    setTodos(_, event) {
+      console.log('setTodos', event.data);
+    },
+    addTodo() {
+      console.log('addTodo');
+    },
+    editTodo(_, event) {
+      console.log('edit todo', event.id, event.name);
+    }
+  }
+});
+```
+
+Now that we have the machine laid out, let's get it ready to test. First, we'll be using `xState`'s interpreter to start the machine, track transitions and send events to the machine. This code will be at the bottom of `home.machine.js`.
+
+```javascript
+const homeMachineService = interpret(homeMachine);
+homeMachineService.start();
+
+homeMachineService.onTransition(function (state) {
+  console.log('transition!', state.value);
+});
+
+export default homeMachineService;
+```
+
+Since the machine is now available for `import`, we can add an import statement to `src/home/index.js`:
+
+```javascript
+import machine from './home.machine';
+```
+
+And finally, we'll fire off the `LOAD` event using the available `useEffect` hook:
+
+```javascript
+useEffect(function () {
+  machine.send('LOAD');
+}, []);
+```
+
+If everything is working correctly, loading up the application should produce this output in console:
+
+```javascript
 ```
 
 #### Step 2 - Creating Mobx-State-Tree Models

@@ -12,7 +12,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
           <button
             type="button"
             onClick={function () {
-              machine.send('CANCEL_DELETE');
+              // Cancel Delete
             }}
           >
             Cancel
@@ -20,7 +20,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
           <button
             type="button"
             onClick={function () {
-              machine.send('CONFIRM_DELETE');
+              // Confirm Delete
             }}
           >
             Confirm
@@ -41,7 +41,7 @@ DeleteTodoModal.propTypes = {
 
 DeleteTodoModal.defaultProps = {
   visible: false,
-  todoName: '',
+  todoName: 'this todo',
   machine: {
     send() {}
   }
