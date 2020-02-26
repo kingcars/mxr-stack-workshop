@@ -12,6 +12,7 @@ export default function () {
     machine.send('LOAD');
   }, []);
 
+
   return (
     <div className="container">
       <div className="header">
@@ -28,23 +29,30 @@ export default function () {
       </div>
       <Observer>
         {function () {
+          if (store.currentState === 'waiting' || store.currentState === 'loadTodos')  {
+            return (
+              <div className={'loader'} />
+            )
+          }
           return (
-            <div>
+            <ul className={'todos'}>
               {store.todos.map(function (todo) {
                 return (
-                  <TodoComponent
-                    key={todo.id}
-                    todo={todo}
-                    onChange={function (e) {
-                      machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
-                    }}
-                    onDeleteClick={function () {
-                      machine.send('DELETE_TODO', { id: todo.id });
-                    }}
-                  />
+                  <li>
+                    <TodoComponent
+                      key={todo.id}
+                      todo={todo}
+                      onChange={function (e) {
+                        machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
+                      }}
+                      onDeleteClick={function () {
+                        machine.send('DELETE_TODO', { id: todo.id });
+                      }}
+                    />
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           );
         }}
       </Observer>

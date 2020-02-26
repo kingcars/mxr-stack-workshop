@@ -1,5 +1,11 @@
 .todo {
-    display: flex;
+    display: inline-flex;
     flex-direction: row;
     justify-content: flex-start;
+}
+
+.todo button {
+    background: #c73339;
+    color: #FFF;
+    border: none;
 }
