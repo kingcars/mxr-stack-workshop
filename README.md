@@ -279,7 +279,7 @@ setTodos >(3) [{...}, {...}, {...}]
 transition! loaded
 ```
 
-Now that we can see the machine working, we can fire the `ADD_TODO` and `EDIT_TODO` events.
+Now that we can see the machine working, we can fire the `ADD_TODO` and `EDIT_TODO` events from the React component in `src/home/index.js`.
 
 Replace the `// Add a Todo` comment line with
 
