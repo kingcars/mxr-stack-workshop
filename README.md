@@ -20,6 +20,116 @@ Here we have a basic version of a `Todos` application. The basic pieces for a fu
 
 #### Step 1 - Defining the UI Flow using xState
 
+The first thing we want to do is lay out the core UI flow. To do this, we'll be adding code to `src/home/home.machine.js`. First, let's think about the steps we want the application to go through:
+
+- App starts in a waiting state
+- Upon the user visiting the page, kick off an API call to load todos
+- Once the API call completes, add the todos to a store
+- Allow the user to add/edit/delete todos
+
+With that figured out, let's add some necessary imports and create a finite state machine:
+
+```javascript
+import { Machine, interpret } from 'xstate';
+import api from './home.api';
+
+const homeMachine = Machine({
+  id: 'HomeMachine'
+});
+```
+
+The first thing we want to do from here is tell the machine what its initial state will be. In this case, we want the machine to start in a waiting state:
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting'
+});
+```
+
+From here, we can define the `waiting` state:
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {}
+  }
+});
+```
+
+As discussed previously, we want the ability to kick off an API call from the waiting state. So first, we'll add a state for that and call it `loadTodos`:
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {},
+    loadTodos: {}
+  }
+});
+```
+
+Once the API call has loaded, we'll want a state in which the user can perform their `add`, `edit` and `delete` actions. Let's call this state `loaded`. After this, we'll start working through the states and their necessary transitions.
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {},
+    loadTodos: {},
+    loaded: {}
+  }
+});
+```
+
+The first transition in this machine will be from the initial `waiting` state to the `loadTodos` state, so we need to add a transition definition. Let's tell the finite state machine to listen for a `LOAD` event in the `waiting` state in order to transition to the `loadTodos` state:
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {
+      on: {
+        LOAD: 'loadTodos'
+      }
+    },
+    loadTodos: {},
+    loaded: {}
+  }
+});
+```
+
+The `loadTodos` state is for running an API call, which will require using a concept called `invoke`. In `xState`, it is possible for a machine to `invoke` various things - API calls (Promises), callbacks, observables and even other xState machines. In this case, we'll be invoking a `Promise`, taken directly from the `api` import we added previously. When invoking a `Promise`, we can define state transitions based on whether the `Promise` succeeded (resolved) or failed (rejected). This can be done by using the `onDone` and `onError` properties of the `invoke` configuration. Since this is a mock API call, we'll only be defining an `onDone` transition today.
+
+```javascript
+const homeMachine = Machine({
+  id: 'HomeMachine',
+  initial: 'waiting',
+  states: {
+    waiting: {
+      on: {
+        LOAD: 'loadTodos'
+      }
+    },
+    loadTodos: {
+      invoke: {
+        id: 'appApi',
+        src: api,
+        onDone: {
+          target: 'loaded'
+        }
+      }
+    },
+    loaded: {}
+  }
+});
+```
+
 #### Step 2 - Creating Mobx-State-Tree Models
 
 #### Step 3 - Loading Todos
