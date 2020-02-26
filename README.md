@@ -241,7 +241,9 @@ const homeMachine = Machine({
 });
 ```
 
-Now that we have the machine laid out, let's get it ready to test. First, we'll be using `xState`'s interpreter to start the machine, track transitions and send events to the machine. This code will be at the bottom of `home.machine.js`.
+You may notice that actions take two parameters. The first one is called `context`, which is a reference to the machine's own data store. We won't be using `context` in this workshop, so we're just replacing it with `_` for simplicity's sake. The second parameter is called `event` which will include any data passed from the event that has been fired. For an `onDone` event from a `Promise`, `event` will include the data that was sent to the `resolve` callback in the `Promise`, as we will see here with `event.data`.
+
+Now that we have the machine laid out, let's get it ready to test. First, we'll be using `xState`'s [interpreter](https://xstate.js.org/docs/guides/interpretation.html#interpreting-machines) to start the machine, track transitions and send events to the machine. This code will be at the bottom of `home.machine.js`.
 
 ```javascript
 const homeMachineService = interpret(homeMachine);
@@ -271,7 +273,29 @@ useEffect(function () {
 If everything is working correctly, loading up the application should produce this output in console:
 
 ```javascript
+transition! waiting
+transition! loadTodos
+setTodos >(3) [{...}, {...}, {...}]
+transition! loaded
 ```
+
+Now that we can see the machine working, we can fire the `ADD_TODO` and `EDIT_TODO` events.
+
+Replace the `// Add a Todo` comment line with
+
+```javascript
+machine.send('ADD_TODO');
+```
+
+Replace the `// Edit a Todo` comment line with
+
+```javascript
+machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
+```
+
+For the `EDIT_TODO` event, we'll want to know the `id` of the todo we're editing along with the updated `name`, so we'll pass that information to the event here.
+
+If everything is working properly, clicking the `Add Todo` button should show `addTodo` in console and trying to type into one of the textboxes should result in `edit todo` along with an id and a name in console. You may also see `transition! loaded` pop up in console when testing these actions, which is expected. When an event transition does not contain a `target`, it is considered an [internal transition](https://xstate.js.org/docs/guides/actions.html#actions-on-self-transitions).
 
 #### Step 2 - Creating Mobx-State-Tree Models
 
