@@ -18,15 +18,17 @@ Here we have a basic version of a `Todos` application. The basic pieces for a fu
 - Edit Todos
 - Delete Todos through a confirmation modal
 
-#### Step 1 - Creating Mobx-State-Tree Models
+#### Step 1 - Defining the UI Flow using xState
 
-#### Step 2 - Loading Todos
+#### Step 2 - Creating Mobx-State-Tree Models
 
-#### Step 3 - Adding Todos
+#### Step 3 - Loading Todos
 
-#### Step 4 - Editing Todos
+#### Step 4 - Adding Todos
 
-#### Step 5 - Deleting Todos
+#### Step 5 - Editing Todos
+
+#### Step 6 - Deleting Todos
 
 ## The Basics
 The MXR tech stack utilizes three key components: [Mobx State Tree](https://mobx-state-tree.js.org/intro/philosophy), [xState](https://xstate.js.org/docs/about/concepts.html) and [React](https://reactjs.org/docs/getting-started.html). Mobx State Tree is the state management library; it enables us to utilize type-safe, defined data models throughout our application. xState is a library used for defining and executing finite state machines, which act as fully declarative action drivers throughout the application. Finally, React is used for the view layer, but all views are stateless and include no application/business logic.
