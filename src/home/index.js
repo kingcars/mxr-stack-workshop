@@ -13,27 +13,19 @@ export default function () {
   }, []);
 
   return (
-    <div>
-      <h2 className="header">Welcome to the MXR Stack Workshop</h2>
-      <Observer>
-        {function () {
-          return (
-            <div>
-              <div>
-                {store.currentState}
-                <button
-                  type="button"
-                  onClick={function () {
-                    machine.send('ADD_TODO');
-                  }}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          );
-        }}
-      </Observer>
+    <div className="container">
+      <div className="header">
+        <h2 className="header-title">Welcome to the MXR Stack Workshop</h2>
+        <button
+          type="button"
+          className="addButton"
+          onClick={function () {
+            machine.send('ADD_TODO');
+          }}
+        >
+          Add Todo
+        </button>
+      </div>
       <Observer>
         {function () {
           return (

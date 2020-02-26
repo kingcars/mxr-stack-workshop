@@ -1,3 +1,21 @@
 .header {
-    color: blue;
+    display: flex;
+    justify-content: space-between;
+}
+
+.addButton {
+    background-color: #058a05;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    padding: 10px 15px;
+    height: 45px;
+}
+
+.addButton:hover {
+    cursor: pointer;
+    background-color: #1db11d;
 }
