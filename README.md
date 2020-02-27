@@ -3,6 +3,40 @@
 ## Introduction
 Welcome to the MXR stack workshop! We have spent the last several months developing and refining a tech stack which we believe will help us avoid the inevitable nature of many code bases, in which they become cumbersome and unmaintainable over time. We've done so by implementing various libraries, patterns and practices which encourage strict separation of concern and developer sympathy. This workshop will step you through the basic principles and impactful features of this tech stack.
 
+## Table of Contents
+
+* [The Basics](#the-basics)
+* [Our Philosophy](#our-philosophy)
+  * [Data Handling](#data-handling)
+  * [Actions/UI Flow](#actionsui-flow)
+  * [Stateless UI Components](#stateless-ui-components)
+* [Installation](#installation)
+* [Instructions](#instructions)
+  * [Step 1 - Defining the UI Flow using XState](#step-1---defining-the-ui-flow-using-xstate)
+  * [Step 2 - Creating models with Mobx State Tree](#step-2---creating-models-with-mobx-state-tree)
+  * [Step 3 - Loading Todos](#step-3---loading-todos)
+  * [Step 4 - Adding Todos](#step-4---adding-todos)
+  * [Step 5 - Editing Todos](#step-5---editing-todos)
+  * [Step 6 - Deleting Todos](#step-6---deleting-todos)
+  * [Step 7 - Polish & Nice-to-Haves](#step-7---polish--nice-to-haves)
+
+## The Basics
+The MXR tech stack utilizes three key components: [Mobx State Tree](https://mobx-state-tree.js.org/intro/philosophy), [XState](https://xstate.js.org/docs/about/concepts.html) and [React](https://reactjs.org/docs/getting-started.html). Mobx State Tree is the state management library; it enables us to utilize type-safe, defined data models throughout our application. XState is a library used for defining and executing finite state machines, which act as fully declarative action drivers throughout the application. Finally, React is used for the view layer, but all views are stateless and include no application/business logic.
+
+## Our Philosophy
+
+#### Data Handling
+
+The plague of data ambiguity is no longer a concern, thanks to the type-safe, defined data models of Mobx State Tree. The ability to define and compose data models also means that models can be shared across the application, meaning that a single model can be used as a source of truth across multiple areas of the application; any time that model changes, it only needs to change in one place. Under the MXR stack, stores are purely repositories for data. They do not handle API calls or data flow logic. This makes the stores an easy one-stop shop for understanding what data is being used throughout the application and exactly how it's structured.
+
+#### Actions/UI Flow
+
+One of the biggest pain points of jumping into any front end application is figuring out what the UI actually does. This often requires tedious sifting through dozens of component files, stores and utility functions where things often become intertwined in complex and confusing ways. Using XState's finite state machines as our only actions driver, this is no longer a problem. Understanding the flow of the UI is simply a case of reading through the machine configuration for a given page. This makes the UI flow much easier to reason about due to the declarative nature of the machine configurations and the fact that UI flows live in a clearly defined place.
+
+#### Stateless UI Components
+
+UI components are often a center of complexity. They end up handling many core aspects of an application, including application logic, API calls, internal state etc. Under the MXR stack, UI components are intended to remain stateless and are only responsible for sending events and rendering UI. This keeps them free of clutter, easy to read and easy to update.
+
 ## Installation
 
 After cloning the reponsitory, open a command window in the project's base folder. Run `npm install` then `npm start`.
@@ -18,7 +52,7 @@ Here we have a basic version of a `Todos` application. The basic pieces for a fu
 - Edit Todos
 - Delete Todos through a confirmation modal
 
-#### Step 1 - Defining the UI Flow using xState
+#### Step 1 - Defining the UI Flow using XState
 
 The first thing we want to do is lay out the core UI flow. To do this, we'll be adding code to `src/home/home.machine.js`. First, let's think about the steps we want the application to go through:
 
@@ -297,7 +331,7 @@ For the `EDIT_TODO` event, we'll want to know the `id` of the todo we're editing
 
 If everything is working properly, clicking the `Add Todo` button should show `addTodo` in console and trying to type into one of the textboxes should result in `edit todo` along with an id and a name in console. You may also see `transition! loaded` pop up in console when testing these actions, which is expected. When an event transition does not contain a `target`, it is considered an [internal transition](https://xstate.js.org/docs/guides/actions.html#actions-on-self-transitions).
 
-#### Step 2 - Creating Mobx-State-Tree Models
+#### Step 2 - Creating models with Mobx State Tree
 
 The next major pieces of the puzzle are the data models. In this application, we'll have two data models: one for storing the base level application/page data, which will include things like the application's `currentState` along with a list of `todos`. The list of `todos` will be an array of `Todo` models; the `Todo` model will include a unique `id` along with a `name`. Since the base level model requires a `Todo` model, let's start with the `Todo` model. We'll navigate over to `src/todos/todo.store.js` and start with the necessary imports:
 
@@ -628,7 +662,9 @@ First, add the required import:
 import todoModalMachine from '../todos/todo.modal.machine';
 ```
 
-Next, add a state called `showDeleteModal` which `invokes` the `todoModalMachine` and returns to the `loaded` state once completed. Note the `autoForward: true` configuration item. That tells XState that any event that gets passed to the parent machine (in this case, `homeMachine`) gets forwarded to any active child machines (in this case, `todoModalMachine`). This will be useful since our modal UI will send the `CONFIRM_DELETE` and `CANCEL_DELETE` events through `homeMachine`, as we'll see momentarily. Next, we'll add an event to the `loaded` state called `DELETE_TODO` which will transition the user to the `showDeleteModal` state. Finally, we'll run an action called `setDeleteTodo` when the user enters the `showDeleteModal` state. For now, that action will just be empty, but we'll come back to it momentarily.
+Next, add a state called `showDeleteModal` which `invokes` the `todoModalMachine` and returns to the `loaded` state once completed. Note the `autoForward: true` configuration item. That tells XState that any event that gets passed to the parent machine (in this case, `homeMachine`) gets forwarded to any active child machines (in this case, `todoModalMachine`). This will be useful since our modal UI will send the `CONFIRM_DELETE` and `CANCEL_DELETE` events through `homeMachine`, as we'll see momentarily. 
+
+From here, we'll add an event to the `loaded` state called `DELETE_TODO` which will transition the user to the `showDeleteModal` state. Once that's added, we'll run an action called `setDeleteTodo` when the user enters the `showDeleteModal` state. For now, that action will just be empty, but we'll come back to it momentarily.
 
 ```javascript
 states: {
@@ -832,16 +868,4 @@ Now start up the application and try it out!
 
 #### Step 7 - Polish & Nice-to-Haves
 
-## The Basics
-The MXR tech stack utilizes three key components: [Mobx State Tree](https://mobx-state-tree.js.org/intro/philosophy), [xState](https://xstate.js.org/docs/about/concepts.html) and [React](https://reactjs.org/docs/getting-started.html). Mobx State Tree is the state management library; it enables us to utilize type-safe, defined data models throughout our application. xState is a library used for defining and executing finite state machines, which act as fully declarative action drivers throughout the application. Finally, React is used for the view layer, but all views are stateless and include no application/business logic.
-
-## Our Philosophy
-With the MXR stack, we hope to push the prioritization of developer sympathy and separation of concern during the development process. Using the components mentioned above, here are some of the core tenants of our philosophy:
-
-#### Data Handling
-
-The plague of data ambiguity is no longer a concern, thanks to the type-safe, defined data models of Mobx State Tree. The ability to define and compose data models also means that models can be shared across the application, meaning that a single model can be used as a source of truth across multiple areas of the application; any time that model changes, it only needs to change in one place. Under the MXR stack, stores are purely repositories for data. They do not handle API calls or data flow logic.
-
-#### Actions/UI Flow
-
-One of the biggest pain points of jumping into any front end application is figuring out what the UI actually does. This often requires tedious sifting through dozens of component files, stores and utility functions where things often become intertwined in complex and confusing ways. Using xState's finite state machines as our only actions driver, this is no longer a problem. Understanding the flow of the UI is simply a case of reading through the FSM configuration for a given page. This makes the UI flow much easier to reason about due to the declarative nature of the FSM configurations and the fact that UI flows live in a clearly defined place.
+Coming Soon
