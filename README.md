@@ -262,7 +262,7 @@ Since the machine is now available for `import`, we can add an import statement 
 import machine from './home.machine';
 ```
 
-And finally, we'll fire off the `LOAD` event using the available `useEffect` hook:
+And finally, we'll fire off the `LOAD` event when the user visits the page using the available `useEffect` hook:
 
 ```javascript
 useEffect(function () {
@@ -298,6 +298,74 @@ For the `EDIT_TODO` event, we'll want to know the `id` of the todo we're editing
 If everything is working properly, clicking the `Add Todo` button should show `addTodo` in console and trying to type into one of the textboxes should result in `edit todo` along with an id and a name in console. You may also see `transition! loaded` pop up in console when testing these actions, which is expected. When an event transition does not contain a `target`, it is considered an [internal transition](https://xstate.js.org/docs/guides/actions.html#actions-on-self-transitions).
 
 #### Step 2 - Creating Mobx-State-Tree Models
+
+The next major pieces of the puzzle are the data models. In this application, we'll have two data models: one for storing the base level application/page data, which will include things like the application's `currentState` along with a list of `todos`. The list of `todos` will be an array of `Todo` models; the `Todo` model will include a unique `id` along with a `name`. Since the base level model requires a `Todo` model, let's start with the `Todo` model. We'll navigate over to `src/todos/todo.store.js` and start with the necessary imports:
+
+```javascript
+import { types } from 'mobx-state-tree';
+import xid from 'xid';
+```
+
+Next, we'll begin to define a `mobx-state-tree` model, which will describe the data we wish to collect for a todo:
+
+```javascript
+export default const Todo = types
+  .model('Todo', {
+    id: types.identifier,
+    name: types.string
+  });
+```
+
+`types.indentifier` indicates to `mobx-state-tree` that the corresponding field will contain a unique value for each instance of the model. As we will see later in the workshop, this allows `mobx-state-tree` to do some very powerful and useful things in order to make tedious work much easier. However, right now, we do need to clarify that these fields will not always be pre-determined, due to the fact that we will be adding new "blank" `Todos` to the list. In order to do this, we'll use `types.optional` which will allow us to not only define the underlying type (ie `string`), but also define a default value. The default value can either be a standalone value or a function that returns a value.
+
+```javascript
+function generateId() {
+  return xid.generateId();
+}
+
+export default const Todo = types
+  .model('Todo', {
+    id: types.optional(types.identifier, generateId),
+    name: types.optional(types.string, 'New Todo')
+  });
+```
+
+Now, any time we create a blank `Todo`, a unique `id` will be automatically generated and the `name` will default to `New Todo`.
+
+The next thing to consider is that we'll want the ability for the user to change the `name` of a `Todo`. In order to allow for this, we'll need to add an `action` to the model. We'll call this one `setName`:
+
+```javascript
+export default const Todo = types
+  .model('Todo', {
+    id: types.optional(types.identifier, generateId),
+    name: types.optional(types.string, 'New Todo')
+  })
+  .actions(function (self) {
+    return {
+      setName(name) {
+        self.name = name;
+      }
+    };
+  });
+```
+
+That's all we need to do for the `Todo` model. Next, we'll move into the `Home` model in `src/home/home.store.js` and start by adding the necessary imports:
+
+```javascript
+import { types, resolveIdentifier } from 'mobx-state-tree';
+import TodoModel from '../todos/todo.store';
+```
+
+Next, let's define the model. For now, the two things we need are a list of `Todos` and a string value for `currentState`. `currentState` will represent the name of the `state` that the `machine` currently resides in.
+
+```javascript
+export default const Home = types
+  .model('Home', {
+    currentState: types.optional(types.string, ''),
+    todos: types.array(TodoModel)
+  });
+```
+
 
 #### Step 3 - Loading Todos
 
