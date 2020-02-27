@@ -309,11 +309,13 @@ import xid from 'xid';
 Next, we'll begin to define a `mobx-state-tree` model, which will describe the data we wish to collect for a todo:
 
 ```javascript
-export default const Todo = types
+const Todo = types
   .model('Todo', {
     id: types.identifier,
     name: types.string
   });
+
+export default Todo;
 ```
 
 `types.indentifier` indicates to `mobx-state-tree` that the corresponding field will contain a unique value for each instance of the model. As we will see later in the workshop, this allows `mobx-state-tree` to do some very powerful and useful things in order to make tedious work much easier. However, right now, we do need to clarify that these fields will not always be pre-determined, due to the fact that we will be adding new "blank" `Todos` to the list. In order to do this, we'll use `types.optional` which will allow us to not only define the underlying type (ie `string`), but also define a default value. The default value can either be a standalone value or a function that returns a value.
@@ -323,11 +325,13 @@ function generateId() {
   return xid.generateId();
 }
 
-export default const Todo = types
+const Todo = types
   .model('Todo', {
     id: types.optional(types.identifier, generateId),
     name: types.optional(types.string, 'New Todo')
   });
+
+export default Todo;
 ```
 
 Now, any time we create a blank `Todo`, a unique `id` will be automatically generated and the `name` will default to `New Todo`.
@@ -335,7 +339,7 @@ Now, any time we create a blank `Todo`, a unique `id` will be automatically gene
 The next thing to consider is that we'll want the ability for the user to change the `name` of a `Todo`. In order to allow for this, we'll need to add an `action` to the model. We'll call this one `setName`:
 
 ```javascript
-export default const Todo = types
+const Todo = types
   .model('Todo', {
     id: types.optional(types.identifier, generateId),
     name: types.optional(types.string, 'New Todo')
@@ -347,6 +351,8 @@ export default const Todo = types
       }
     };
   });
+
+export default Todo;
 ```
 
 That's all we need to do for the `Todo` model. Next, we'll move into the `Home` model in `src/home/home.store.js` and start by adding the necessary imports:
@@ -359,21 +365,470 @@ import TodoModel from '../todos/todo.store';
 Next, let's define the model. For now, the two things we need are a list of `Todos` and a string value for `currentState`. `currentState` will represent the name of the `state` that the `machine` currently resides in.
 
 ```javascript
-export default const Home = types
+const Home = types
   .model('Home', {
     currentState: types.optional(types.string, ''),
     todos: types.array(TodoModel)
   });
 ```
 
+Like with the `Todo` model, we now need to consider the actions we'd like the user to take. In this case, let's start by adding actions for updating the `currentState`, setting the loaded list of todos and adding a todo
+
+```javascript
+const Home = types
+  .model('Home', {
+    currentState: types.optional(types.string, ''),
+    todos: types.array(TodoModel)
+  })
+  .actions(function (self) {
+    return {
+      setCurrentState(state) {
+        self.currentState = state;
+      },
+      setTodos(todos) {
+        self.todos = todos;
+      },
+      addTodo() {
+        self.todos.push({});
+      }
+    };
+  });
+```
+
+Since `setCurrentState` is now added, let's make sure the `machine` is constantly reporting its current state to the store. To do this, we just need to go to `src/home/home.machine.js` and change `console.log('transition!', state.value);` to call the store function instead.
+
+```javascript
+homeMachineService.onTransition(function (state) {
+  store.setCurrentState(state.value);
+});
+```
+
+Next, let's tackle editing a todo. In order to do this, we'll need a way to grab a specific `todo` then call its `setName` function to update the name. While in many JavaScript solutions, this would require looping through an array in search of an object with a specific `id`, with `Mobx State Tree`, it is very simple. `Mobx State Tree` provides a function called `resolveIdentifier`. This function takes 3 parameters - the type of `model` you're searching for, a collection that contains the models in which to search, and the unique `id` for the model. Once it runs, it will return the model with the matching identifier. Remember the `types.identifier` that we configured for the `Todo` model? That is what `Mobx State Tree` uses to find a specific model with `resolveIdentifier`.
+
+The first line in our action function will be running `resolveIdentifier`, telling it that we want to find a `TodoModel` that lives within the list of todos (`self.todos`) and whose `identifier` matches the provided `id`. On the next line, if a `todo` is found, we will update its name to the specified name. So now the model should look like this:
+
+```javascript
+const Home = types
+  .model('Home', {
+    currentState: types.optional(types.string, ''),
+    todos: types.array(TodoModel)
+  })
+  .actions(function (self) {
+    return {
+      setCurrentState(state) {
+        self.currentState = state;
+      },
+      setTodos(todos) {
+        self.todos = todos;
+      },
+      addTodo() {
+        self.todos.push({});
+      },
+      updateTodo(id, name) {
+        const todo = resolveIdentifier(TodoModel, self.todos, id);
+        if (todo) todo.setName(name);
+      }
+    };
+  });
+```
+
+The last thing we need to do is `export` an instance of this model for our application to start with. We'll do this by running `create` on our model and exporting the instance. Since we want to start with a blank slate, we'll pass in an empty object. But if there's ever the need to pre-load any data into the store, it can be passed in here.
+
+```javascript
+export default Home.create({});
+```
+
+Great! Now that the models are complete, we can start hooking them up with the rest of the application!
 
 #### Step 3 - Loading Todos
 
+We already have the `LOAD` event firing to the `machine` in the `useEffect` hook, and we already have a `console.log` showing that the data is making it from the mock API to the `setTodos` machine action. All we need to do now is get the `machine` talking to the `store`. First, let's open up `src/home/home.machine.js` and `import` the `Home` store.
+
+```javascript
+import { Machine, interpret } from 'xstate';
+import store from './home.store';
+import api from './home.api';
+```
+
+The last thing we need to do is replace the `console.log` in the `setTodos` action with a call to the `setTodos` function in the `store`. The `actions` block should now look like this:
+
+```javascript
+actions: {
+  setTodos(_, event) {
+    store.setTodos(event.data);
+  },
+  addTodo() {
+    console.log('addTodo');
+  },
+  editTodo(_, event) {
+    console.log('edit todo', event.id, event.name);
+  }
+}
+```
+
+Next, in order to utilize this store data, we'll want to replace the hard-coded data in `src/home/index.js` with the data we're loading into the store. We'll start by `importing` the store:
+
+```javascript
+import React, { useEffect } from 'react';
+import TodoComponent from '../todos/todo.component';
+import machine from './home.machine';
+import store from './home.store';
+```
+
+Next, we'll remove the hard coded list of todos shown below.
+
+```javascript
+const todos = [{
+  id: '16n5jkgfc0d4k760',
+  name: 'Take a shower'
+}, {
+  id: '9a2889n7f55s410v',
+  name: 'Walk the dog'
+}, {
+  id: 'pmakvvvb1s2aapkf',
+  name: 'Go to work'
+}];
+```
+
+Finally, we'll update the `React` component to loop through the list of todos from the store instead of the hard coded list:
+
+```javascript
+{store.todos.map(function (todo) {
+  return (
+    <li key={todo.id}>
+      <TodoComponent
+        todo={todo}
+        onChange={function (e) {
+          machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
+        }}
+        onDeleteClick={function () {
+          // Delete a Todo
+        }}
+      />
+    </li>
+  );
+})}
+```
+
+Ok, great, the application seems to be running...but why isn't the list of todos showing up any more? The answer is simple: We need to add an `Observer` wrapper around the parts of the UI that we want to update based on store data. `Mobx` uses a component called an `Observer` which allows us to specify particular parts of the UI that need to update based on relevant data. The beauty of this is that React components can be sectioned off so that changes to one section won't cause another section to re-render. This can help the application maintain optimal performance and reduce re-renders. For now, we'll add one such component around the todos list:
+
+```javascript
+import { Observer } from 'mobx-react';
+```
+
+Note how the `Observer` component takes a function that returns `jsx`.
+```javascript
+<Observer>
+  {function () {
+    return (
+      <ul className="todos">
+        {store.todos.map(function (todo) {
+          return (
+            <li>
+              <TodoComponent
+                key={todo.id}
+                todo={todo}
+                onChange={function (e) {
+                  machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
+                }}
+                onDeleteClick={function () {
+                  // Delete a Todo
+                }}
+              />
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }}
+</Observer>
+```
+
+With this addition, the loaded `todos` list should now be showing up in the UI!
+
 #### Step 4 - Adding Todos
+
+The process for adding todos will be pretty similar to the process followed above. We already have the `ADD_TODO` event firing and logging out, so all we need to do is call the `store` instead of logging. To accomplish this, go to `src/home/home.machine.js` and replace the `console.log` in `addTodo` with a call to `store.addTodo`.
+
+```javascript
+actions: {
+  setTodos(_, event) {
+    store.setTodos(event.data);
+  },
+  addTodo() {
+    store.addTodo();
+  },
+  editTodo(_, event) {
+    console.log('edit todo', event.id, event.name);
+  }
+}
+```
+
+Clicking the `Add` button should now add a todo to the list in the UI.
 
 #### Step 5 - Editing Todos
 
+Hooking up the `edit` functionality will follow the exact same process. In `src/home/home.machine.js`, we will replace the `console.log` in `editTodo` with a call to `store.updateTodo`.
+
+```javascript
+actions: {
+  setTodos(_, event) {
+    store.setTodos(event.data);
+  },
+  addTodo() {
+    store.addTodo();
+  },
+  editTodo(_, event) {
+    store.updateTodo(event.id, event.name);
+  }
+}
+```
+
+Typing in the text boxes for each todo should now show the changes in real time!
+
 #### Step 6 - Deleting Todos
+
+Deleting todos will be a little more complex because we want to have the user confirm the action via a modal before performing it. The first thing we'll want to do is define the user flow for the modal and translate that into a machine. The user flow should be rather simple: the modal starts in a state in which the user can choose to confirm or cancel the action. Upon making the selection, the todo should be deleted (if confirmed) and the modal should close. So let's go to `src/todos/todo.modal.machine.js` and write out a machine for this flow:
+
+```javascript
+import { Machine } from 'xstate';
+
+const modalMachine = Machine({
+  id: 'ModalMachine',
+  initial: 'confirmation',
+  states: {
+    confirmation: {
+      on: {
+        CONFIRM_DELETE: {
+          target: 'closeModal',
+          actions: 'deleteTodo'
+        },
+        CANCEL_DELETE: 'closeModal'
+      }
+    },
+    closeModal: {
+      type: 'final'
+    }
+  }
+}, {
+  actions: {
+    deleteTodo() {
+      // Perform the delete
+    }
+  }
+});
+
+export default modalMachine;
+```
+
+Notice how the `closeModal` state has a `type` of `final`. This is a way to indicate that the machine has completed its flow. When we go to `invoke` this machine in the `home` machine, the `onDone` event will fire once the `final` state is reached in the same way it fires when a `Promise` resolves. Since we're on the subject, let's go over to `src/home/home.machine.js` and add a state for showing the modal:
+
+First, add the required import:
+```javascript
+import todoModalMachine from '../todos/todo.modal.machine';
+```
+
+Next, add a state called `showDeleteModal` which `invokes` the `todoModalMachine` and returns to the `loaded` state once completed. Note the `autoForward: true` configuration item. That tells XState that any event that gets passed to the parent machine (in this case, `homeMachine`) gets forwarded to any active child machines (in this case, `todoModalMachine`). This will be useful since our modal UI will send the `CONFIRM_DELETE` and `CANCEL_DELETE` events through `homeMachine`, as we'll see momentarily. Next, we'll add an event to the `loaded` state called `DELETE_TODO` which will transition the user to the `showDeleteModal` state. Finally, we'll run an action called `setDeleteTodo` when the user enters the `showDeleteModal` state. For now, that action will just be empty, but we'll come back to it momentarily.
+
+```javascript
+states: {
+  waiting: {
+    on: {
+      LOAD: 'loadTodos'
+    }
+  },
+  loadTodos: {
+    invoke: {
+      id: 'appApi',
+      src: api,
+      onDone: {
+        actions: 'setTodos',
+        target: 'loaded'
+      }
+    }
+  },
+  loaded: {
+    on: {
+      ADD_TODO: {
+        actions: 'addTodo'
+      },
+      EDIT_TODO: {
+        actions: 'editTodo'
+      },
+      DELETE_TODO: 'showDeleteModal'
+    }
+  },
+  showDeleteModal: {
+    onEntry: 'setDeleteTodo',
+    invoke: {
+      id: 'todoDeleteModal',
+      src: todoModalMachine,
+      autoForward: true,
+      onDone: 'loaded'
+    }
+  }
+}
+```
+
+```javascript
+actions: {
+  setTodos(_, event) {
+    store.setTodos(event.data);
+  },
+  addTodo() {
+    store.addTodo();
+  },
+  editTodo(_, event) {
+    store.updateTodo(event.id, event.name);
+  },
+  setDeleteTodo(_, event) {
+    // Set the todo id to delete
+  }
+}
+```
+
+Now that the machines are updated, we'll need to update the `home` store so we can keep track of which `todo` the user is trying to delete. To do so, let's navigate over to `src/home/home.store.js`. From here, we'll want to add a `deleteTodoId` field and an action for updating it:
+
+```javascript
+const Home = types
+  .model('Home', {
+    currentState: types.optional(types.string, ''),
+    deleteTodoId: types.optional(types.string, ''),
+    todos: types.array(TodoModel)
+  })
+  .actions(function (self) {
+    return {
+      setCurrentState(state) {
+        self.currentState = state;
+      },
+      setTodos(todos) {
+        self.todos = todos;
+      },
+      addTodo() {
+        self.todos.push({});
+      },
+      updateTodo(id, name) {
+        const todo = resolveIdentifier(TodoModel, self.todos, id);
+        if (todo) todo.setName(name);
+      },
+      setDeleteTodoId(todoId) {
+        self.deleteTodoId = todoId;
+      }
+    };
+  });
+```
+
+Next, we'll want an action for performing the actual deletion of a todo. For this, we'll want to update the `mobx-state-tree` import to include `destroy`. This is a built-in function which can be used to remove a model instance from a store.
+
+```javascript
+import { types, resolveIdentifier, destroy } from 'mobx-state-tree';
+```
+
+After that, we'll need an action function which will find and delete the specified todo. Once again, `resolveIdentifier` will come in handy here. We'll find the specified todo using `resolveIdentifier` and run `destroy` on it. The resulting action should look like this:
+
+```javascript
+deleteTodo() {
+  const todo = resolveIdentifier(TodoModel, self.todos, self.deleteTodoId);
+  if (todo) destroy(todo);
+}
+```
+
+Now that the store is finished, let's add the calls to its new functions in our machines. First, let's head over to `src/home/home.machine.js` and add a call to `setDeleteTodoId` in the `setDeleteTodo` action:
+
+```javascript
+actions: {
+  setTodos(_, event) {
+    store.setTodos(event.data);
+  },
+  addTodo() {
+    store.addTodo();
+  },
+  editTodo(_, event) {
+    store.updateTodo(event.id, event.name);
+  },
+  setDeleteTodo(_, event) {
+    store.setDeleteTodoId(event.id);
+  }
+}
+```
+
+Next, we'll go to `src/todos/todo.modal.machine.js` and add a `store` import and a call to the store's `deleteTodo` function.
+
+```javascript
+import store from '../home/home.store';
+```
+
+```javascript
+actions: {
+  deleteTodo() {
+    store.deleteTodo();
+  }
+}
+```
+
+With all of that complete, it's time to add the modal to the UI! First, we'll `import` the modal and add an `Observer` section at the bottom for rendering it:
+
+```javascript
+import DeleteTodoModal from '../todos/todo.modal';
+```
+
+```javascript
+<Observer>
+  {function () {
+    return (
+      <DeleteTodoModal />
+    );
+  }}
+</Observer>
+```
+
+The modal takes 3 props, but we'll only be using two for now: `visible` and `machine`. `Visible` is a boolean telling the modal whether it's open or closed and `machine` is just a reference to the `homeMachine`. As mentioned earlier, the `modal` will be sending events through the `homeMachine` which will then be forwarded to the `todoModalMachine`.
+
+The nice thing to note here is that the `visible` boolean is easily set by checking the current state of the `machine` - we only want the modal to show when the user is in the `showDeleteModal` state.
+
+```javascript
+<Observer>
+  {function () {
+    return (
+      <DeleteTodoModal
+        visible={store.currentState === 'showDeleteModal'}
+        machine={machine}
+      />
+    );
+  }}
+</Observer>
+```
+
+The last thing we need to do now is fire off the events. We'll first be doing this by replacing the `// Delete a Todo` comment with an event and the corresponding todo id:
+
+```javascript
+onDeleteClick={function () {
+  machine.send('DELETE_TODO', { id: todo.id });
+}}
+```
+
+Next, we'll open up `src/todos/todo.modal.js` and replace the `// Cancel Delete` and `// Confirm Delete` comments with their respective events:
+
+```javascript
+<button
+  type="button"
+  onClick={function () {
+    machine.send('CANCEL_DELETE');
+  }}
+>
+  Cancel
+</button>
+<button
+  type="button"
+  onClick={function () {
+    machine.send('CONFIRM_DELETE');
+  }}
+>
+  Confirm
+</button>
+```
+
+Now start up the application and try it out!
 
 #### Step 7 - Polish & Nice-to-Haves
 
