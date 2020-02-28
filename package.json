@@ -1,0 +1,50 @@
+{
+  "name": "mxr-stack-workshop",
+  "version": "1.0.0",
+  "description": "Introduction to MXR Stack",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --open --profile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kingcars/mxr-stack-workshop.git"
+  },
+  "keywords": [
+    "React",
+    "xState",
+    "mobx",
+    "state",
+    "tree"
+  ],
+  "author": "Anthony Rossomano",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kingcars/mxr-stack-workshop/issues"
+  },
+  "homepage": "https://github.com/kingcars/mxr-stack-workshop#readme",
+  "dependencies": {
+    "mobx": "^5.15.4",
+    "mobx-react": "^6.1.8",
+    "mobx-state-tree": "^3.15.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "xid": "0.0.2",
+    "xstate": "^4.7.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/preset-react": "^7.8.3",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.4.2",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^1.1.3",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
