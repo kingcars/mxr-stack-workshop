@@ -865,4 +865,42 @@ Now start up the application and try it out!
 
 #### Step 7 - Polish & Nice-to-Haves
 
-Coming Soon
+So we have all of the basic requirements completed, but the application is still rough around the edges. For example, the 1.5 second wait on the mock API call creates a strange situation where the center of the screen is blank until the call completes. Thanks to the state based nature of the MXR stack, it is easy to add rendering logic based off the machine's current state (which gets reported to the `currentState` value of the store). All we need to do here is pull in the `Loader` component add some logic in the render function of `src/home/index.js` that renders it while the application is in the `loadTodos` state:
+
+```javascript
+import Loader from './home.loader';
+```
+
+```javascript
+<Observer>
+  {function () {
+    if (store.currentState === 'loadTodos')  {
+      return (<Loader />);
+    }
+
+    return (
+      <ul className="todos">
+        {store.todos.map(function (todo) {
+          return (
+            <li key={todo.id}>
+              <TodoComponent
+                todo={todo}
+                onChange={function (e) {
+                  machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
+                }}
+                onDeleteClick={function () {
+                  // Delete a Todo
+                }}
+              />
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }}
+</Observer>
+```
+
+Now while the todos are loading, the user should see a loading spinner appear on the screen.
+
+More Polish & Nice-to-haves coming soon!
