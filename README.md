@@ -296,7 +296,7 @@ Since the machine is now available for `import`, we can add an import statement 
 import machine from './home.machine';
 ```
 
-And finally, we'll fire off the `LOAD` event when the user visits the page using the available `useEffect` hook:
+And finally, we'll fire off the `LOAD` event when the user visits the page using the available `useEffect` hook, replacing the `// Do something when the component mounts` comment with `machine.send('LOAD');`:
 
 ```javascript
 useEffect(function () {
