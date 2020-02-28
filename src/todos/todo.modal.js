@@ -13,7 +13,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
             className="confirm-button"
             type="button"
             onClick={function () {
-              // Cancel Delete
+              machine.send('CANCEL_DELETE');
             }}
           >
             Cancel
@@ -22,7 +22,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
             className="cancel-button"
             type="button"
             onClick={function () {
-              // Confirm Delete
+              machine.send('CONFIRM_DELETE');
             }}
           >
             Confirm
