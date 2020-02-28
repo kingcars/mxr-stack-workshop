@@ -296,7 +296,7 @@ Since the machine is now available for `import`, we can add an import statement 
 import machine from './home.machine';
 ```
 
-And finally, we'll fire off the `LOAD` event when the user visits the page using the available `useEffect` hook:
+And finally, we'll fire off the `LOAD` event when the user visits the page using the available `useEffect` hook, replacing the `// Do something when the component mounts` comment with `machine.send('LOAD');`:
 
 ```javascript
 useEffect(function () {
@@ -429,7 +429,11 @@ const Home = types
   });
 ```
 
-Since `setCurrentState` is now added, let's make sure the `machine` is constantly reporting its current state to the store. To do this, we just need to go to `src/home/home.machine.js` and change `console.log('transition!', state.value);` to call the store function instead.
+Since `setCurrentState` is now added, let's make sure the `machine` is constantly reporting its current state to the store. To do this, we just need to go to `src/home/home.machine.js`, import the home store and change `console.log('transition!', state.value);` to call the store's `setCurrentState` function instead.
+
+```javascript
+import store from './home.store';
+```
 
 ```javascript
 homeMachineService.onTransition(function (state) {
@@ -476,13 +480,9 @@ Great! Now that the models are complete, we can start hooking them up with the r
 
 #### Step 3 - Loading Todos
 
-We already have the `LOAD` event firing to the `machine` in the `useEffect` hook, and we already have a `console.log` showing that the data is making it from the mock API to the `setTodos` machine action. All we need to do now is get the `machine` talking to the `store`. First, let's open up `src/home/home.machine.js` and `import` the `Home` store.
+We already have the `LOAD` event firing to the `machine` in the `useEffect` hook, and we already have a `console.log` showing that the data is making it from the mock API to the `setTodos` machine action. All we need to do now is get the `machine` talking to the `store`.
 
-```javascript
-import store from './home.store';
-```
-
-The last thing we need to do is replace the `console.log` in the `setTodos` action with a call to the `setTodos` function in the `store`. The `actions` block should now look like this:
+Let's open up `src/home/home.machine.js`. Here, we'll replace the `console.log` in the `setTodos` action with a call to the `setTodos` function in the `store`. The `actions` block should now look like this:
 
 ```javascript
 actions: {
@@ -501,9 +501,6 @@ actions: {
 Next, in order to utilize this store data, we'll want to replace the hard-coded data in `src/home/index.js` with the data we're loading into the store. We'll start by `importing` the store:
 
 ```javascript
-import React, { useEffect } from 'react';
-import TodoComponent from '../todos/todo.component';
-import machine from './home.machine';
 import store from './home.store';
 ```
 
@@ -865,4 +862,42 @@ Now start up the application and try it out!
 
 #### Step 7 - Polish & Nice-to-Haves
 
-Coming Soon
+So we have all of the basic requirements completed, but the application is still rough around the edges. For example, the 1.5 second wait on the mock API call creates a strange situation where the center of the screen is blank until the call completes. Thanks to the state based nature of the MXR stack, it is easy to add rendering logic based off the machine's current state (which gets reported to the `currentState` value of the store). All we need to do here is pull in the `Loader` component add some logic in the render function of `src/home/index.js` that renders it while the application is in the `loadTodos` state:
+
+```javascript
+import Loader from './home.loader';
+```
+
+```javascript
+<Observer>
+  {function () {
+    if (store.currentState === 'loadTodos')  {
+      return (<Loader />);
+    }
+
+    return (
+      <ul className="todos">
+        {store.todos.map(function (todo) {
+          return (
+            <li key={todo.id}>
+              <TodoComponent
+                todo={todo}
+                onChange={function (e) {
+                  machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
+                }}
+                onDeleteClick={function () {
+                  // Delete a Todo
+                }}
+              />
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }}
+</Observer>
+```
+
+Now while the todos are loading, the user should see a loading spinner appear on the screen.
+
+More Polish & Nice-to-haves coming soon!
