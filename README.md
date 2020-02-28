@@ -45,7 +45,7 @@ Note: Recommended to have Node `10.13.0` or higher.
 
 ## Instructions
 
-Here we have a basic version of a `Todos` application. The basic pieces for a functional application are already provided, but we need to tie everything together by creating machine states, adding state transitions and updating/creating mobx-state-tree models. By the end, we should be able to:
+Here we have a basic version of a `Todos` application. The basic pieces for a functional application are already provided, but we need to tie everything together by creating machine states, adding state transitions and updating/creating Mobx State Tree models. By the end, we should be able to:
 
 - Load Todos from a mock API call
 - Add Todos
@@ -138,7 +138,7 @@ const homeMachine = Machine({
 });
 ```
 
-The `loadTodos` state is for running an API call, which will require using a concept called [invoke](https://xstate.js.org/docs/guides/communication.html#the-invoke-property). In `xState`, it is possible for a machine to `invoke` various things - API calls (Promises), callbacks, observables and even other xState machines. In this case, we'll be invoking a `Promise`, taken directly from the `api` import we added previously. When invoking a `Promise`, we can define state transitions based on whether the `Promise` succeeded (resolved) or failed (rejected). This can be done by using the `onDone` and `onError` properties of the `invoke` configuration. Since this is a mock API call, we'll only be defining an `onDone` transition today.
+The `loadTodos` state is for running an API call, which will require using a concept called [invoke](https://xstate.js.org/docs/guides/communication.html#the-invoke-property). In `XState`, it is possible for a machine to `invoke` various things - API calls (Promises), callbacks, observables and even other XState machines. In this case, we'll be invoking a `Promise`, taken directly from the `api` import we added previously. When invoking a `Promise`, we can define state transitions based on whether the `Promise` succeeded (resolved) or failed (rejected). This can be done by using the `onDone` and `onError` properties of the `invoke` configuration. Since this is a mock API call, we'll only be defining an `onDone` transition today.
 
 ```javascript
 const homeMachine = Machine({
@@ -227,7 +227,7 @@ const homeMachine = Machine({
 });
 ```
 
-You may be wondering where these actions actually get pulled from. The answer is easy: We define them within the `xState` configuration! `Machine` takes two arguments: the first being the machine configuration and the second being a mapping of `actions`, `services` and `guards`. In this workshop, we'll only be covering `actions`. For now, since we don't have the store created yet, we'll simply have these actions run some `console.log`s so we can see everything working.
+You may be wondering where these actions actually get pulled from. The answer is easy: We define them within the `XState` configuration! `Machine` takes two arguments: the first being the machine configuration and the second being a mapping of `actions`, `services` and `guards`. In this workshop, we'll only be covering `actions`. For now, since we don't have the store created yet, we'll simply have these actions run some `console.log`s so we can see everything working.
 
 ```javascript
 const homeMachine = Machine({
@@ -277,7 +277,7 @@ const homeMachine = Machine({
 
 You may notice that actions take two parameters. The first one is called `context`, which is a reference to the machine's own data store. We won't be using `context` in this workshop, so we're just replacing it with `_` for simplicity's sake. The second parameter is called `event` which will include any data passed from the event that has been fired. For an `onDone` event from a `Promise`, `event` will include the data that was sent to the `resolve` callback in the `Promise`, as we will see here with `event.data`.
 
-Now that we have the machine laid out, let's get it ready to test. First, we'll be using `xState`'s [interpreter](https://xstate.js.org/docs/guides/interpretation.html#interpreting-machines) to start the machine, track transitions and send events to the machine. This code will be at the bottom of `home.machine.js`.
+Now that we have the machine laid out, let's get it ready to test. First, we'll be using `XState`'s [interpreter](https://xstate.js.org/docs/guides/interpretation.html#interpreting-machines) to start the machine, track transitions and send events to the machine. This code will be at the bottom of `home.machine.js`.
 
 ```javascript
 const homeMachineService = interpret(homeMachine);
@@ -340,7 +340,7 @@ import { types } from 'mobx-state-tree';
 import xid from 'xid';
 ```
 
-Next, we'll begin to define a `mobx-state-tree` model, which will describe the data we wish to collect for a todo:
+Next, we'll begin to define a `Mobx State Tree` model, which will describe the data we wish to collect for a todo:
 
 ```javascript
 const Todo = types
@@ -352,7 +352,7 @@ const Todo = types
 export default Todo;
 ```
 
-`types.indentifier` indicates to `mobx-state-tree` that the corresponding field will contain a unique value for each instance of the model. As we will see later in the workshop, this allows `mobx-state-tree` to do some very powerful and useful things in order to make tedious work much easier. However, right now, we do need to clarify that these fields will not always be pre-determined, due to the fact that we will be adding new "blank" `Todos` to the list. In order to do this, we'll use `types.optional` which will allow us to not only define the underlying type (ie `string`), but also define a default value. The default value can either be a standalone value or a function that returns a value.
+`types.indentifier` indicates to `Mobx State Tree` that the corresponding field will contain a unique value for each instance of the model. As we will see later in the workshop, this allows `Mobx State Tree` to do some very powerful and useful things in order to make tedious work much easier. However, right now, we do need to clarify that these fields will not always be pre-determined, due to the fact that we will be adding new "blank" `Todos` to the list. In order to do this, we'll use `types.optional` which will allow us to not only define the underlying type (ie `string`), but also define a default value. The default value can either be a standalone value or a function that returns a value.
 
 ```javascript
 function generateId() {
@@ -558,9 +558,8 @@ Note how the `Observer` component takes a function that returns `jsx`.
       <ul className="todos">
         {store.todos.map(function (todo) {
           return (
-            <li>
+            <li key={todo.id}>
               <TodoComponent
-                key={todo.id}
                 todo={todo}
                 onChange={function (e) {
                   machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
