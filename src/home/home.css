@@ -1,8 +1,17 @@
 .header {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 2em;
 }
-
+.container {
+    width: 614px;
+    margin: 0 auto;
+}
+.header-title {
+    margin: 0 auto;
+    text-align: center;
+    display: inline-block;
+}
 .add-button {
     background-color: #058a05;
     color: white;
@@ -19,7 +28,13 @@
     cursor: pointer;
     background-color: #1db11d;
 }
-
+.todos {
+    width: 38em;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
 .todos ul {
     list-style: none;
     padding: 0;
@@ -31,6 +46,7 @@
 .todos li {
     text-align: center;
     list-style: none;
+    margin-bottom: 0.5em;
 }
 
 .loader,
