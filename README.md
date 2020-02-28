@@ -429,7 +429,11 @@ const Home = types
   });
 ```
 
-Since `setCurrentState` is now added, let's make sure the `machine` is constantly reporting its current state to the store. To do this, we just need to go to `src/home/home.machine.js` and change `console.log('transition!', state.value);` to call the store function instead.
+Since `setCurrentState` is now added, let's make sure the `machine` is constantly reporting its current state to the store. To do this, we just need to go to `src/home/home.machine.js`, import the home store and change `console.log('transition!', state.value);` to call the store's `setCurrentState` function instead.
+
+```javascript
+import store from './home.store';
+```
 
 ```javascript
 homeMachineService.onTransition(function (state) {
@@ -476,13 +480,9 @@ Great! Now that the models are complete, we can start hooking them up with the r
 
 #### Step 3 - Loading Todos
 
-We already have the `LOAD` event firing to the `machine` in the `useEffect` hook, and we already have a `console.log` showing that the data is making it from the mock API to the `setTodos` machine action. All we need to do now is get the `machine` talking to the `store`. First, let's open up `src/home/home.machine.js` and `import` the `Home` store.
+We already have the `LOAD` event firing to the `machine` in the `useEffect` hook, and we already have a `console.log` showing that the data is making it from the mock API to the `setTodos` machine action. All we need to do now is get the `machine` talking to the `store`.
 
-```javascript
-import store from './home.store';
-```
-
-The last thing we need to do is replace the `console.log` in the `setTodos` action with a call to the `setTodos` function in the `store`. The `actions` block should now look like this:
+Let's open up `src/home/home.machine.js`. Here, we'll replace the `console.log` in the `setTodos` action with a call to the `setTodos` function in the `store`. The `actions` block should now look like this:
 
 ```javascript
 actions: {
@@ -501,9 +501,6 @@ actions: {
 Next, in order to utilize this store data, we'll want to replace the hard-coded data in `src/home/index.js` with the data we're loading into the store. We'll start by `importing` the store:
 
 ```javascript
-import React, { useEffect } from 'react';
-import TodoComponent from '../todos/todo.component';
-import machine from './home.machine';
 import store from './home.store';
 ```
 
