@@ -329,7 +329,7 @@ machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
 
 For the `EDIT_TODO` event, we'll want to know the `id` of the todo we're editing along with the updated `name`, so we'll pass that information to the event here.
 
-If everything is working properly, clicking the `Add Todo` button should show `addTodo` in console and trying to type into one of the textboxes should result in `edit todo` along with an id and a name in console. You may also see `transition! loaded` pop up in console when testing these actions, which is expected. When an event transition does not contain a `target`, it is considered an [internal transition](https://xstate.js.org/docs/guides/actions.html#actions-on-self-transitions).
+If everything is working properly, clicking the `Add Todo` button should show `addTodo` in console and trying to type into one of the textboxes should result in `edit todo` along with an id and a name in console. Don't worry if the values aren't changing when you type; we'll have that fixed later on. You may also see `transition! loaded` pop up in console when testing these actions, which is expected. When an event transition does not contain a `target`, it is considered an [internal transition](https://xstate.js.org/docs/guides/actions.html#actions-on-self-transitions).
 
 #### Step 2 - Creating models with Mobx State Tree
 
@@ -352,7 +352,7 @@ const Todo = types
 export default Todo;
 ```
 
-`types.indentifier` indicates to `Mobx State Tree` that the corresponding field will contain a unique value for each instance of the model. As we will see later in the workshop, this allows `Mobx State Tree` to do some very powerful and useful things in order to make tedious work much easier. However, right now, we do need to clarify that these fields will not always be pre-determined, due to the fact that we will be adding new "blank" `Todos` to the list. In order to do this, we'll use `types.optional` which will allow us to not only define the underlying type (ie `string`), but also define a default value. The default value can either be a standalone value or a function that returns a value.
+`types.identifier` indicates to `Mobx State Tree` that the corresponding field will contain a unique value for each instance of the model. As we will see later in the workshop, this allows `Mobx State Tree` to do some very powerful and useful things in order to make tedious work much easier. However, right now, we do need to clarify that these fields will not always be pre-determined, due to the fact that we will be adding new "blank" `Todos` to the list. In order to do this, we'll use `types.optional` which will allow us to not only define the underlying type (ie `string`), but also define a default value. The default value can either be a standalone value or a function that returns a value.
 
 ```javascript
 function generateId() {
@@ -479,9 +479,7 @@ Great! Now that the models are complete, we can start hooking them up with the r
 We already have the `LOAD` event firing to the `machine` in the `useEffect` hook, and we already have a `console.log` showing that the data is making it from the mock API to the `setTodos` machine action. All we need to do now is get the `machine` talking to the `store`. First, let's open up `src/home/home.machine.js` and `import` the `Home` store.
 
 ```javascript
-import { Machine, interpret } from 'xstate';
 import store from './home.store';
-import api from './home.api';
 ```
 
 The last thing we need to do is replace the `console.log` in the `setTodos` action with a call to the `setTodos` function in the `store`. The `actions` block should now look like this:
