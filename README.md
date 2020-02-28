@@ -56,7 +56,7 @@ Here we have a basic version of a `Todos` application. The basic pieces for a fu
 
 The first thing we want to do is lay out the core UI flow. To do this, we'll be adding code to `src/home/home.machine.js`. First, let's think about the steps we want the application to go through:
 
-- App starts in a waiting state
+- App starts in an initial state
 - Upon the user visiting the page, kick off an API call to load todos
 - Once the API call completes, add the todos to a store
 - Allow the user to add/edit/delete todos
@@ -72,7 +72,7 @@ const homeMachine = Machine({
 });
 ```
 
-The first thing we want to do from here is tell the machine what its initial state will be. In this case, we want the machine to start in a waiting state:
+The first thing we want to do from here is tell the machine what its initial state will be. Let's call this state `waiting`:
 
 ```javascript
 const homeMachine = Machine({
@@ -81,7 +81,7 @@ const homeMachine = Machine({
 });
 ```
 
-From here, we can define the `waiting` state:
+From here, we can define the aforementioned `waiting` state:
 
 ```javascript
 const homeMachine = Machine({
