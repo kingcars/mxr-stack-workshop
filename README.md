@@ -39,7 +39,7 @@ UI components are often a center of complexity. They end up handling many core a
 
 ## Installation
 
-After cloning the reponsitory, open a command window in the project's base folder. Run `npm install` then `npm start`.
+After cloning the repository, open a command window in the project's base folder. Run `npm install` then `npm start`.
 
 Note: Recommended to have Node `10.13.0` or higher.
 
