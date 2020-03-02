@@ -886,7 +886,7 @@ import Loader from './home.loader';
                   machine.send('EDIT_TODO', { id: todo.id, name: e.target.value });
                 }}
                 onDeleteClick={function () {
-                  // Delete a Todo
+                  machine.send('DELETE_TODO', { id: todo.id });
                 }}
               />
             </li>
