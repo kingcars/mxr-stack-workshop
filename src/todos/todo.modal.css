@@ -15,9 +15,50 @@
 }
 
 .modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 800px;
+    font-size: 18px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.confirm-button {
+    background-color: #058a05;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    padding: 10px 15px;
+    height: 45px;
+}
+
+.confirm-button:hover {
+    cursor: pointer;
+    background-color: #1db11d;
+}
+
+.cancel-button {
+    background: #c73339;
+    color: #FFF;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    padding: 10px 15px;
+    height: 45px;
+    margin-right: 5px;
+}
+
+.cancel-button:hover {
+    cursor: pointer;
+    background: #f13339;
 }
