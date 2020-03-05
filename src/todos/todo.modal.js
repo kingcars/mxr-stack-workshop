@@ -8,7 +8,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
     <div className={`modal ${visible ? 'visible' : ''}`}>
       <div className="modal-content">
         {`Are you sure you'd like to delete ${todoName}?`}
-        <div>
+        <div className="modal-buttons">
           <button
             className="cancel-button"
             type="button"
