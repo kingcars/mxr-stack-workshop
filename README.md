@@ -870,6 +870,7 @@ Next, we'll open up `src/todos/todo.modal.js` and replace the `// Cancel Delete`
 
 ```javascript
 <button
+  className="cancel-button"
   type="button"
   onClick={function () {
     machine.send('CANCEL_DELETE');
@@ -878,6 +879,7 @@ Next, we'll open up `src/todos/todo.modal.js` and replace the `// Cancel Delete`
   Cancel
 </button>
 <button
+  className="confirm-button"
   type="button"
   onClick={function () {
     machine.send('CONFIRM_DELETE');

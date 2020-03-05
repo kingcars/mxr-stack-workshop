@@ -10,7 +10,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
         {`Are you sure you'd like to delete ${todoName}?`}
         <div>
           <button
-            className="confirm-button"
+            className="cancel-button"
             type="button"
             onClick={function () {
               // Cancel Delete
@@ -19,7 +19,7 @@ function DeleteTodoModal({ visible, machine, todoName }) {
             Cancel
           </button>
           <button
-            className="cancel-button"
+            className="confirm-button"
             type="button"
             onClick={function () {
               // Confirm Delete
