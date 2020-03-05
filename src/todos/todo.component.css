@@ -17,6 +17,7 @@
     font-size: 14px;
     width: 6em;
     border-radius: 3px;
+    outline: 0;
 }
 .todo button:hover {
     background: #f13339;
