@@ -656,9 +656,7 @@ First, add the required import:
 import todoModalMachine from '../todos/todo.modal.machine';
 ```
 
-Next, add a state called `showDeleteModal` which `invokes` the `todoModalMachine` and returns to the `loaded` state once completed. Note the `autoForward: true` configuration item. That tells XState that any event that gets passed to the parent machine (in this case, `homeMachine`) gets forwarded to any active child machines (in this case, `todoModalMachine`). This will be useful since our modal UI will send the `CONFIRM_DELETE` and `CANCEL_DELETE` events through `homeMachine`, as we'll see momentarily. 
-
-From here, we'll add an event to the `loaded` state called `DELETE_TODO` which will transition the user to the `showDeleteModal` state. Once that's added, we'll run an action called `setDeleteTodo` when the user enters the `showDeleteModal` state. For now, that action will just be empty, but we'll come back to it momentarily.
+Next, add a state called `showDeleteModal` which `invokes` the `todoModalMachine` and returns to the `loaded` state once completed.
 
 ```javascript
 states: {
@@ -684,12 +682,10 @@ states: {
       },
       EDIT_TODO: {
         actions: 'editTodo'
-      },
-      DELETE_TODO: 'showDeleteModal'
+      }
     }
   },
   showDeleteModal: {
-    onEntry: 'setDeleteTodo',
     invoke: {
       id: 'todoDeleteModal',
       src: todoModalMachine,
@@ -699,6 +695,39 @@ states: {
   }
 }
 ```
+Note the `autoForward: true` configuration item. That tells XState that any event that gets passed to the parent machine (in this case, `homeMachine`) gets forwarded to any active child machines (in this case, `todoModalMachine`). This will be useful since our modal UI will send the `CONFIRM_DELETE` and `CANCEL_DELETE` events through `homeMachine`, as we'll see momentarily.
+
+From here, we'll add an event to the `loaded` state called `DELETE_TODO` which will transition the user to the `showDeleteModal` state.
+
+```javascript
+loaded: {
+  on: {
+    ADD_TODO: {
+      actions: 'addTodo'
+    },
+    EDIT_TODO: {
+      actions: 'editTodo'
+    },
+    DELETE_TODO: 'showDeleteModal'
+  }
+}
+```
+
+Once that's added, we'll run an action called `setDeleteTodo` when the user enters the `showDeleteModal` state. We'll be using the `onEntry` configuration option to do this.
+
+```javascript
+showDeleteModal: {
+  onEntry: 'setDeleteTodo',
+  invoke: {
+    id: 'todoDeleteModal',
+    src: todoModalMachine,
+    autoForward: true,
+    onDone: 'loaded'
+  }
+}
+```
+
+Then we'll add the `setDeleteTodo` action to the actions block. For now, it will just be empty, but we'll come back to it momentarily.
 
 ```javascript
 actions: {
@@ -796,7 +825,7 @@ actions: {
 }
 ```
 
-With all of that complete, it's time to add the modal to the UI! First, we'll `import` the modal and add an `Observer` section at the bottom for rendering it:
+With all of that complete, it's time to add the modal to the UI! First, we'll open up `src/home/index.js`, `import` the modal and add an `Observer` section at the bottom for rendering it:
 
 ```javascript
 import DeleteTodoModal from '../todos/todo.modal';
