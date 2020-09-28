@@ -1,7 +1,7 @@
 import { Machine, interpret } from 'xstate';
-import todoModalMachine from '../todos/todo.modal.machine';
-import store from './home.store';
 import api from './home.api';
+import store from './home.store';
+import todoModalMachine from '../todos/todo.modal.machine';
 
 const homeMachine = Machine({
   id: 'HomeMachine',
@@ -47,12 +47,15 @@ const homeMachine = Machine({
   actions: {
     setTodos(_, event) {
       store.setTodos(event.data);
+      console.log('setTodos', event.data);
     },
     addTodo() {
       store.addTodo();
+      console.log('addTodo');
     },
     editTodo(_, event) {
       store.updateTodo(event.id, event.name);
+      console.log('edit todo', event.id, event.name);
     },
     setDeleteTodo(_, event) {
       store.setDeleteTodoId(event.id);
@@ -65,6 +68,7 @@ homeMachineService.start();
 
 homeMachineService.onTransition(function (state) {
   store.setCurrentState(state.value);
+  console.log('transition!', state.value);
 });
 
 export default homeMachineService;

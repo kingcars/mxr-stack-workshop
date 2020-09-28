@@ -752,7 +752,7 @@ Now that the machines are updated, we'll need to update the `home` store so we c
 const Home = types
   .model('Home', {
     currentState: types.optional(types.string, ''),
-    deleteTodoId: types.optional(types.string, ''),
+    deleteTodoId: types.reference(TodoModel),
     todos: types.array(TodoModel)
   })
   .actions(function (self) {
@@ -777,18 +777,19 @@ const Home = types
   });
 ```
 
+In this instance, we're using what's called a `reference` type. This allows us to set the value to an `identifier` of one of our `TodoModels` from the `todos` array. At that point, any time we refer to `store.deleteTodoId`, it will give us a full reference to the corresponding `TodoModel`.
+
 Next, we'll want an action for performing the actual deletion of a todo. For this, we'll want to update the `mobx-state-tree` import to include `destroy`. This is a built-in function which can be used to remove a model instance from a store.
 
 ```javascript
 import { types, resolveIdentifier, destroy } from 'mobx-state-tree';
 ```
 
-After that, we'll need an action function which will find and delete the specified todo. Once again, `resolveIdentifier` will come in handy here. We'll find the specified todo using `resolveIdentifier` and run `destroy` on it. The resulting action should look like this:
+After that, we'll need an action function which will find and delete the specified todo. Here, we'll simply leverage our reference type value and directly call `destroy` on it. The resulting action should look like this:
 
 ```javascript
 deleteTodo() {
-  const todo = resolveIdentifier(TodoModel, self.todos, self.deleteTodoId);
-  if (todo) destroy(todo);
+  destroy(self.deleteTodoId);
 }
 ```
 

@@ -4,7 +4,7 @@ import TodoModel from '../todos/todo.store';
 const Home = types
   .model('Home', {
     currentState: types.optional(types.string, ''),
-    deleteTodoId: types.optional(types.string, ''),
+    deleteTodoId: types.reference(TodoModel),
     todos: types.array(TodoModel)
   })
   .actions(function (self) {
@@ -22,14 +22,15 @@ const Home = types
         const todo = resolveIdentifier(TodoModel, self.todos, id);
         if (todo) todo.setName(name);
       },
-      setDeleteTodoId(todoId) {
-        self.deleteTodoId = todoId;
+      setDeleteTodoId(id) {
+        self.deleteTodoId = id;
       },
       deleteTodo() {
-        const todo = resolveIdentifier(TodoModel, self.todos, self.deleteTodoId);
-        if (todo) destroy(todo);
+        if (self.deleteTodoId) destroy(self.deleteTodoId);
       }
     };
   });
 
-export default Home.create({});
+export default Home.create({
+  deleteTodoId: ''
+});

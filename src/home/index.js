@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Observer } from 'mobx-react';
 import TodoComponent from '../todos/todo.component';
-import DeleteTodoModal from '../todos/todo.modal';
-import Loader from './home.loader';
 import machine from './home.machine';
 import store from './home.store';
+import DeleteTodoModal from '../todos/todo.modal';
+import Loader from './home.loader';
 
 import './home.css';
 
@@ -29,7 +29,7 @@ export default function () {
       </div>
       <Observer>
         {function () {
-          if (store.currentState === 'loadTodos')  {
+          if (store.currentState === 'loadTodos') {
             return (<Loader />);
           }
 
