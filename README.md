@@ -752,7 +752,7 @@ Now that the machines are updated, we'll need to update the `home` store so we c
 const Home = types
   .model('Home', {
     currentState: types.optional(types.string, ''),
-    deleteTodoId: types.reference(TodoModel),
+    deleteTodoId: types.optional(types.reference(TodoModel), ''),
     todos: types.array(TodoModel)
   })
   .actions(function (self) {
